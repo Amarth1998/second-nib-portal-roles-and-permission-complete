@@ -5,7 +5,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class EnsureSuperAdmin
+class EnsureSuperAdminMiddleware
 {
     /**
      * Handle an incoming request.
@@ -15,7 +15,7 @@ class EnsureSuperAdmin
         $user = Auth::user();
 
         // Check if the user is authenticated and has the 'superadmin' role
-        if (!$user || !$user->hasRole('superadmin')) {
+        if (!$user || !$user->hasRole('SuperAdmin')) {
             return response()->json(['error' => 'Access denied. Only Super Admins are allowed.'], 403);
         }
 

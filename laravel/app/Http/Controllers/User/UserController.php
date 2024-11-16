@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -11,43 +11,9 @@ use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
-
 class UserController extends Controller
 
-
 {
-
-    // Method to assign a role to a user (by Super Admin)
-    // public function assignRole(Request $request)
-    // {
-    //     // Ensure the current user is logged in and is a Super Admin
-    //     $user = Auth::user(); // Get the currently authenticated user
-
-    //     if (!$user->hasRole('superadmin')) {
-    //         return response()->json(['error' => 'You do not have permission to assign roles.'], 403); 
-    //     }
-
-    //     // Validate the incoming data
-    //     $validated = $request->validate([
-    //         'user_id' => 'required|exists:users,id',
-    //         'role_id' => 'required|exists:roles,id', // Ensure the role ID exists in the roles table
-    //     ]);
-
-    //     // Find the user by ID
-    //     $userToAssignRole = User::findOrFail($validated['user_id']);
-
-    //     // Find the role by ID
-    //     $role = Role::find($validated['role_id']);
-
-    //     if ($role) {
-    //         // Assign the role to the user
-    //         $userToAssignRole->assignRole($role); 
-    //         return response()->json(['message' => 'Role assigned successfully.']);
-    //     }
-
-    //     return response()->json(['message' => 'Role not found.'], 404);
-    // }
-
 
     public function assignRole(Request $request)
     {
@@ -59,7 +25,7 @@ class UserController extends Controller
         echo $user->getRoleNames();
 
         // Step 2: Check if the user has the 'superadmin' role
-        if (!$user->hasRole('superadmin')) {
+        if (!$user->hasRole('SuperAdmin')) {
             // If the user is not a Super Admin, return a permission error
             return response()->json(['error' => 'You do not have permission to assign roles.'], 403);
         }
@@ -90,18 +56,18 @@ class UserController extends Controller
             'user_id' => 'required|exists:users,id',
             'permission' => 'required|exists:permissions,name',
         ]);
-    
+
         $user = User::findOrFail($validated['user_id']);
         $permission = Permission::where('name', $validated['permission'])->first();
-    
+
         if ($permission) {
             $user->givePermissionTo($permission); // Assign the permission
             return response()->json(['message' => 'Permission assigned successfully.']);
         }
-    
+
         return response()->json(['message' => 'Permission not found.'], 404);
     }
-    
+
     // Method to check if the current user has access to a specific route
     public function checkPermission($permission)
     {
@@ -145,43 +111,7 @@ class UserController extends Controller
         ], 201);
     }
 
-    // Login method
-    // public function login(Request $request)
-    // {
-    //     // Validate the incoming request
-    //     $validator = Validator::make($request->all(), [
-    //         'email' => 'required|email',
-    //         'password' => 'required|string|min:3',
-    //     ]);
 
-    //     // Return validation error if validation fails
-    //     if ($validator->fails()) {
-    //         return response()->json(['error' => $validator->errors()], 422);
-    //     }
-
-    //     // Check if the user exists and the password is correct
-    //     if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-    //         // Get the authenticated user
-    //         $user = Auth::user();
-
-    //              // Generate a new API token for the user
-    //     $token = $user->createToken('API Token')->plainTextToken;
-    //     $roles = $user->getRoleNames(); // Returns a collection of roles
-
-    //     // Get the permissions associated with the user
-    //     $permissions = $user->getAllPermissions();
-
-    //         // Return success response with token and user data
-    //         return response()->json([
-    //             'message' => 'Login successful.',
-    //             'user' => $user,
-    //             'token' => $token,
-    //         ]);
-    //     } else {
-    //         // Return error if authentication fails
-    //         return response()->json(['error' => 'Unauthorized, incorrect credentials'], 401);
-    //     }
-    // }
 
     public function login(Request $request)
     {
