@@ -48,12 +48,14 @@ public function assignPermission(Request $request)
 {
     $validated = $request->validate([
         'user_id' => 'required|exists:users,id',
-        'permission' => 'required|exists:permissions,name',
+        'permission_id' => 'required|exists:permissions,id',
     ]);
 
+    // Find the user and permission
     $user = User::findOrFail($validated['user_id']);
-    $permission = Permission::where('name', $validated['permission'])->first();
+    $permission = Permission::findOrFail($validated['permission_id']);
 
+    // Assign the permission to the user
     if ($permission) {
         $user->givePermissionTo($permission);
         return response()->json(['message' => 'Permission assigned successfully.']);
@@ -61,6 +63,7 @@ public function assignPermission(Request $request)
 
     return response()->json(['message' => 'Permission not found.'], 404);
 }
+
 
 public function revokeRole(Request $request)
 {
@@ -72,31 +75,46 @@ public function revokeRole(Request $request)
     $userToRevokeRole = User::findOrFail($validated['user_id']);
     $role = Role::findOrFail($validated['role_id']);
 
-    if ($userToRevokeRole->hasRole($role)) {
+    if ($userToRevokeRole->hasRole($role->name)) {
+        // Revoke all permissions associated with the role
+        $permissions = $role->permissions;
+
+        foreach ($permissions as $permission) {
+            if ($userToRevokeRole->hasPermissionTo($permission->name)) {
+                $userToRevokeRole->revokePermissionTo($permission);
+            }
+        }
+
+        // Remove the role
         $userToRevokeRole->removeRole($role);
-        return response()->json(['message' => 'Role revoked successfully.']);
+
+        return response()->json(['message' => 'Role and associated permissions revoked successfully.']);
     }
 
     return response()->json(['error' => 'User does not have the specified role.'], 404);
 }
 
+ 
 public function revokePermission(Request $request)
 {
     $validated = $request->validate([
         'user_id' => 'required|exists:users,id',
-        'permission' => 'required|exists:permissions,name',
+        'permission_id' => 'required|exists:permissions,id',
     ]);
 
+    // Find the user and permission
     $userToRevokePermission = User::findOrFail($validated['user_id']);
-    $permission = Permission::where('name', $validated['permission'])->first();
+    $permission = Permission::findOrFail($validated['permission_id']);
 
-    if ($permission && $userToRevokePermission->hasPermissionTo($permission)) {
+    // Check if the user has the specified permission
+    if ($userToRevokePermission->hasPermissionTo($permission)) {
         $userToRevokePermission->revokePermissionTo($permission);
         return response()->json(['message' => 'Permission revoked successfully.']);
     }
 
     return response()->json(['error' => 'User does not have the specified permission.'], 404);
 }
+
 
 
 }

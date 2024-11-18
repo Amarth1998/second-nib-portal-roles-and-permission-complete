@@ -21,3 +21,4 @@ Route::middleware(['auth:sanctum'])->prefix('customers')->group(function () {
     Route::delete('/{id}', [CustomerController::class, 'destroy'])
         ->middleware(CheckPermissionMiddleware::class . ':delete customers');
 });
+
