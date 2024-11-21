@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Middleware\HrMiddleware;
+namespace App\Http\Middleware\Head_Branch\HeadAdminMiddleware;
 
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
 
-class CheckHrHeadRevokeRoleMiddleware
+class HeadAdminRevokeRoleMiddleware
 {
     /**
      * Handle an incoming request.
@@ -26,11 +26,11 @@ class CheckHrHeadRevokeRoleMiddleware
             return response()->json(['message' => 'Unauthorized.'], 401);
         }
 
-        // Restrict revoking "SuperAdmin" or "Admin" or "Hr Head" roles
+        // Restrict revoking "SuperAdmin" or "HeadAdmin" roles
         $roleId = $request->input('role_id');
         $role = Role::find($roleId);
 
-        if ($role && in_array($role->name, ['SuperAdmin', 'Admin','HrHead'])) {
+        if ($role && in_array($role->name, ['SuperAdmin', 'HeadAdmin'])) {
             return response()->json(['message' => 'You are not authorized to revoke this role.'], 403);
         }
 

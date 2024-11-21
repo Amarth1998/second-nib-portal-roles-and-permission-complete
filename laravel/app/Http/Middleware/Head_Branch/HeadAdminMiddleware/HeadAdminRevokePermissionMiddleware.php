@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Middleware\AdminMiddleware;
+namespace App\Http\Middleware\Head_Branch\HeadAdminMiddleware;
 
 use Closure;
 use Illuminate\Http\Request;
@@ -9,7 +9,7 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Models\User;
 
-class CheckAdminPermissionMiddleware
+class HeadAdminRevokePermissionMiddleware
 {
     /**
      * Handle an incoming request.
@@ -44,21 +44,16 @@ class CheckAdminPermissionMiddleware
             return response()->json(['message' => 'Permission not found.'], 404);
         }
 
-        // Restrict assigning permissions to users with "SuperAdmin" or "Admin" roles
-        if ($targetUser->hasRole(['SuperAdmin', 'Admin'])) {
-            return response()->json(['message' => 'You are not authorized to assign permissions to users with SuperAdmin or Admin roles.'], 403);
+        // Restrict revoking permissions from users with "SuperAdmin" or "Admin" roles
+        if ($targetUser->hasRole(['SuperAdmin', 'HeadAdmin'])) {
+            return response()->json(['message' => 'You are not authorized to revoke permissions from users with SuperAdmin or Admin roles.'], 403);
         }
 
-        // Ensure the admin can only assign permissions they have
+        // Ensure the head admin can only revoke permissions they have
         if (!$currentUser->hasPermissionTo($permission)) {
-            return response()->json(['message' => 'You do not have the required permission to assign this permission.'], 403);
+            return response()->json(['message' => 'You do not have the required permission to revoke this permission.'], 403);
         }
 
-        if ($currentUser->hasRole('HrHead') && $targetUser->roles->isEmpty()) {
-            return response()->json([
-                'message' => 'Admin can only assign permissions to users who already have a role.'
-            ], 403);
-        }
         // Proceed to the next middleware or the controller
         return $next($request);
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Middleware\HrMiddleware;
+namespace App\Http\Middleware\Head_Branch\HrHeadMiddleware;
 
 use Closure;
 use Illuminate\Http\Request;
@@ -9,7 +9,7 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Models\User;
 
-class CheckHrHeadPermissionMiddleware
+class HrHeadAssignPermissionMiddleware
 {
     /**
      * Handle an incoming request.
@@ -42,7 +42,7 @@ class CheckHrHeadPermissionMiddleware
     }
 
     // Restrict assigning permissions to users with specific roles
-    if ($targetUser->hasRole(['SuperAdmin', 'Admin', 'HrHead'])) {
+    if ($targetUser->hasRole(['SuperAdmin', 'HeadAdmin', 'HrHead'])) {
         return response()->json(['message' => 'You are not authorized to assign permissions to users with SuperAdmin, Admin, or HrHead roles.'], 403);
     }
 
@@ -51,12 +51,7 @@ class CheckHrHeadPermissionMiddleware
         return response()->json(['message' => 'You do not have the required permission to assign this permission.'], 403);
     }
 
-    // Ensure the target user has at least one role
-    if ($currentUser->hasRole('HrHead') && $targetUser->roles->isEmpty()) {
-        return response()->json([
-            'message' => 'HrHead can only assign permissions to users who already have a role.'
-        ], 403);
-    }
+  
 
     return $next($request);
 }

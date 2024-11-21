@@ -13,28 +13,34 @@ class AdminSeeder extends Seeder
     {
         // Create the Super Admin user
         $user = User::firstOrCreate(
-            ['email' => 'admin@gmail.com'],
+            ['email' => 'superadmin@gmail.com'],
             [
-                'name' => 'Admin',
-                'password' => bcrypt('password123'), // Default password
+                'branch_id' => 1,
+                'name' => 'SUPER Admin',
+                'password' => bcrypt('123'), // Default password
             ]
         );
 
-        // Check if Super Admin role exists
-        $AdminRole = Role::where('name', 'Admin')->first();
-        if ($AdminRole) {
-            // Assign  Admin role to the user
-            $user->assignRole($AdminRole);
+        // Ensure the Super Admin role exists with guard_name "sanctum"
+        $SuperAdminRole = Role::where('name', 'SuperAdmin')
+            ->where('guard_name', 'sanctum')
+            ->first();
 
-            // Assign all permissions to the Super Admin user
-            // $permissions = Permission::all(); // Fetch all permissions
-            // $user->syncPermissions($permissions);
+        if ($SuperAdminRole) {
+            // Assign the Super Admin role to the user
+            $user->assignRole($SuperAdminRole);
+
+            // Fetch all permissions with guard_name "sanctum"
+            $permissions = Permission::where('guard_name', 'sanctum')->get();
+
+            // Sync permissions to the Super Admin user
+            $user->syncPermissions($permissions);
 
             // Log success message
-            $this->command->info('Admin created successfully with role and permissions.');
+            $this->command->info('Super Admin created successfully with role and permissions.');
         } else {
-            // Log failure message
-            $this->command->error(' Admin role does not exist. Run RolePermissionSeeder first.');
+            // Log failure message if SuperAdmin role does not exist
+            $this->command->error('Super Admin role does not exist. Run RolePermissionSeeder first.');
         }
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Middleware\HrMiddleware;
+namespace App\Http\Middleware\Head_Branch\HrHeadMiddleware;
 
 use Closure;
 use Illuminate\Http\Request;
@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
 // use Spatie\Permission\Models\Permission;
 
-class CheckHrHeadRoleMiddleware
+class HrHeadAssignRoleMiddleware
 {
     /**
      * Handle an incoming request.
@@ -30,8 +30,8 @@ class CheckHrHeadRoleMiddleware
             // Get the role name using the ID
             $role = Role::find($roleId);
 
-            // Restrict assigning "Super Admin" or "Admin" roles
-            if ($role && in_array($role->name, ['SuperAdmin', 'Admin','HrHead'])) {
+            // Restrict assigning "Super Admin" or "head Admin" and " Hr head" roles
+            if ($role && in_array($role->name, ['SuperAdmin', 'HeadAdmin','HrHead'])) {
                 return response()->json(['message' => 'You are not authorized to assign this role.'], 403);
             }
         }

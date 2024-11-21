@@ -160,12 +160,15 @@ return [
 
     /* Cache-specific settings */
 
+
     'cache' => [
 
         /*
          * By default all permissions are cached for 24 hours to speed up performance.
          * When permissions or roles are updated the cache is flushed automatically.
          */
+    // 'expiration_time' => 3600, // Cache duration in seconds
+
 
         'expiration_time' => \DateInterval::createFromDateString('24 hours'),
 

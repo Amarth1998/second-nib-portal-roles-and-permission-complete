@@ -23,7 +23,7 @@ class CheckAuthSuperAdminMiddleware
             if (Auth::user()->hasRole('SuperAdmin')) {
                 return $next($request);  // Allow the request to proceed
             } else {
-                return response()->json(['error' => 'You do not have permission to access this resource.'], 403);
+                return response()->json(['error' => 'You do not have authority to access this resource.'], 403);
             }
         }
 

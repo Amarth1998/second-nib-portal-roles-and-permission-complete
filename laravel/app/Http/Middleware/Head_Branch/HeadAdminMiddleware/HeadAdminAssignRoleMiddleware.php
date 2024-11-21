@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Middleware\AdminMiddleware;
+namespace App\Http\Middleware\Head_Branch\HeadAdminMiddleware;
 
 use Closure;
 use Illuminate\Http\Request;
@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
 // use Spatie\Permission\Models\Permission;
 
-class CheckAdminRoleMiddleware
+class HeadAdminAssignRoleMiddleware
 {
     /**
      * Handle an incoming request.
@@ -23,7 +23,7 @@ class CheckAdminRoleMiddleware
  // Get the authenticated user
  $user = Auth::user();
         // Check if the authenticated user has an admin role
-        if ($user->hasRole('Admin')) {
+        if ($user->hasRole('HeadAdmin')) {
             // Retrieve the role being assigned
             $roleId = $request->role_id;
 
@@ -31,7 +31,7 @@ class CheckAdminRoleMiddleware
             $role = Role::find($roleId);
 
             // Restrict assigning "Super Admin" or "Admin" roles
-            if ($role && in_array($role->name, ['SuperAdmin', 'Admin'])) {
+            if ($role && in_array($role->name, ['SuperAdmin', 'HeadAdmin'])) {
                 return response()->json(['message' => 'You are not authorized to assign this role.'], 403);
             }
         }

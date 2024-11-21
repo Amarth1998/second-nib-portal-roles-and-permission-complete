@@ -1,15 +1,14 @@
 <?php
 
-namespace App\Http\Middleware\HrMiddleware;
+namespace App\Http\Middleware\Sub_Branch\SubHeadAdminMiddleware;
 
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Models\User;
 
-class CheckHrHeadRevokePermissionMiddleware
+class SubHrHeadAssignPermissionMiddleware
 {
     /**
      * Handle an incoming request.
@@ -44,14 +43,19 @@ class CheckHrHeadRevokePermissionMiddleware
             return response()->json(['message' => 'Permission not found.'], 404);
         }
 
-        // Restrict revoking permissions from users with "SuperAdmin" or "Admin" or "HR Head" roles
-        if ($targetUser->hasRole(['SuperAdmin', 'Admin','HrHead'])) {
-            return response()->json(['message' => 'You are not authorized to revoke permissions from users with SuperAdmin or Admin roles.'], 403);
+        // Restrict assigning permissions to users with specific roles
+        if ($targetUser->hasRole(['SuperAdmin', 'SubHeadAdmin', 'SubHrHead'])) {
+            return response()->json(['message' => 'You are not authorized to assign permissions to users with SuperAdmin, SubHeadAdmin, or SubHrHead roles.'], 403);
         }
 
-        // Ensure the Hr Head can only revoke permissions they have
+        // Ensure the target user is in the same branch as the current user
+        if ($currentUser->branch_id !== $targetUser->branch_id) {
+            return response()->json(['message' => 'You are not authorized to assign permissions to users outside your branch.'], 403);
+        }
+
+        // Ensure the current user can only assign permissions they themselves have
         if (!$currentUser->hasPermissionTo($permission)) {
-            return response()->json(['message' => 'You do not have the required permission to revoke this permission.'], 403);
+            return response()->json(['message' => 'You do not have the required permission to assign this permission.'], 403);
         }
 
         // Proceed to the next middleware or the controller
