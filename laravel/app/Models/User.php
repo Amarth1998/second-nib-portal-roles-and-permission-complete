@@ -48,7 +48,7 @@ class User extends Authenticatable
         ];
     }
     protected $guard_name = 'sanctum';
-    
+
     public function branch()
     {
         return $this->belongsTo(Branch::class);  // Each user belongs to a branch

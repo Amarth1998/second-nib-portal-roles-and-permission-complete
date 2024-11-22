@@ -22,7 +22,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:4',
+            'password' => 'required|string|min:2',
            'branch_id' => 'required|exists:branches,id',
         ]);
 
@@ -35,6 +35,7 @@ class UserController extends Controller
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            // 'password'=>$request->password,
             'password' => Hash::make($request->password), // Hash password before storing
         'branch_id' => $request->branch_id,  // Save branch ID
         ]);
@@ -56,7 +57,7 @@ class UserController extends Controller
         // Validate the incoming request
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
-            'password' => 'required|string|min:3',
+            'password' => 'required|string|min:2',
         ]);
 
         // Return validation error if validation fails
@@ -81,7 +82,7 @@ class UserController extends Controller
             // Return success response with token, user data, roles, and permissions
             return response()->json([
                 'message' => 'Login successful.',
-                'user' => $user,
+                // 'user' => $user,
                 'roles' => $roles,  // Include roles in the response
                 'permissions' => $permissions->pluck('name'),  // Include permissions in the response
                 'token' => $token,

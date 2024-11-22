@@ -17,6 +17,7 @@ class AdminSeeder extends Seeder
             [
                 'branch_id' => 1,
                 'name' => 'SUPER Admin',
+                // 'password'=>'123'
                 'password' => bcrypt('123'), // Default password
             ]
         );

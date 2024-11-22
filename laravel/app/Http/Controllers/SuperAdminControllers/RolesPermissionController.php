@@ -18,6 +18,7 @@ class RolesPermissionController extends Controller
             'role_id' => 'required|exists:roles,id',
         ]);
 
+        
         // Find the user and role
         $userToAssignRole = User::findOrFail($validated['user_id']);
         $role = Role::findOrFail($validated['role_id']);
@@ -34,31 +35,251 @@ class RolesPermissionController extends Controller
             $userToAssignRole->givePermissionTo($permission);
         }
 
+        
         return response()->json(['message' => 'Role and permissions assigned successfully.']);
     }
 
     // Assign specific permission to a user
-    public function assignPermission(Request $request)
-    {
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'permission_id' => 'required|exists:permissions,id',
-        ]);
+    // public function assignPermission(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         'user_id' => 'required|exists:users,id',
+    //         'permission_id' => 'required|exists:permissions,id',
+    //     ]);
 
-        // Find the user and permission
-        $user = User::findOrFail($validated['user_id']);
-        $permission = Permission::findOrFail($validated['permission_id']);
+    //     // Find the user and permission
+    //     $user = User::findOrFail($validated['user_id']);
+    //     $permission = Permission::findOrFail($validated['permission_id']);
 
-        // Check if the user has a role before assigning permission
-        if ($user->roles->isEmpty()) {
-            return response()->json(['message' => 'Permission cannot be assigned. User does not have any role.'], 403);
-        }
+    //     // Check if the user has a role before assigning permission
+    //     if ($user->roles->isEmpty()) {
+    //         return response()->json(['message' => 'Permission cannot be assigned. User does not have any role.'], 403);
+    //     }
 
-        // Assign the permission to the user
-        $user->givePermissionTo($permission);
+    //     // Assign the permission to the user
+    //     $user->givePermissionTo($permission);
 
-        return response()->json(['message' => 'Permission assigned successfully.']);
+    //     return response()->json(['message' => 'Permission assigned successfully.']);
+    // }
+
+//     public function assignPermission(Request $request)
+// {
+//     $validated = $request->validate([
+//         'user_id' => 'required|exists:users,id',
+//         'permission_id' => 'required|exists:permissions,id',
+//     ]);
+
+//     // Find the user and permission
+//     $user = User::findOrFail($validated['user_id']);
+//     $permission = Permission::findOrFail($validated['permission_id']);
+
+//     // Check if the user has a role before assigning permission
+//     if ($user->roles->isEmpty()) {
+//         return response()->json(['message' => 'Permission cannot be assigned. User does not have any role.'], 403);
+//     }
+
+//     // Check if the user already has the permission
+//     if ($user->hasPermissionTo($permission)) {
+//         return response()->json(['message' => 'User already has this permission.'], 200);
+//     }
+
+//     // Assign the permission to the user
+//     $user->givePermissionTo($permission);
+
+//     return response()->json(['message' => 'Permission assigned successfully.']);
+// }
+
+
+// public function assignPermission(Request $request)
+// {
+//     $validated = $request->validate([
+//         'user_id' => 'required|exists:users,id',
+//         'permission_id' => 'required|exists:permissions,id',
+//     ]);
+
+//     // Find the user and permission
+//     $user = User::findOrFail($validated['user_id']);
+//     $permission = Permission::findOrFail($validated['permission_id']);
+
+//     // Check if the user has a role before assigning permission
+//     if ($user->roles->isEmpty()) {
+//         return response()->json(['message' => 'Permission cannot be assigned. User does not have any role.'], 403);
+//     }
+
+//     // Check if the user already has the permission directly
+//     $directPermissions = $user->getDirectPermissions();
+//     if ($directPermissions->contains('id', $permission->id)) {
+//         return response()->json(['message' => 'User already has this permission directly assigned.'], 200);
+//     }
+
+//     // Assign the permission to the user
+//     $user->givePermissionTo($permission);
+
+//     return response()->json(['message' => 'Permission assigned successfully.']);
+// }
+
+
+// public function assignPermission(Request $request)
+// {
+//     // Validate the request data
+//     $validated = $request->validate([
+//         'user_id' => 'required|exists:users,id',
+//         'permission_id' => 'required|exists:permissions,id',
+//     ]);
+
+//     // Find the user and permission
+//     $user = User::findOrFail($validated['user_id']);
+//     $permission = Permission::findOrFail($validated['permission_id']);
+
+//     // Check if the user has a role before assigning permission
+//     if ($user->roles->isEmpty()) {
+//         return response()->json(['message' => 'Permission cannot be assigned. User does not have any role.'], 403);
+//     }
+
+//     // Check if the user already has the permission directly assigned
+//     $directPermissions = $user->getDirectPermissions();
+//     if ($directPermissions->contains('id', $permission->id)) {
+//         return response()->json(['message' => 'User already has this permission directly assigned.'], 200);
+//     }
+
+//     // Check if the user inherits the permission through any role
+//     if ($user->hasPermissionTo($permission->name)) {
+//         return response()->json(['message' => 'User already has this permission through their role.'], 200);
+//     }
+
+//     // Assign the permission to the user
+//     $user->givePermissionTo($permission);
+
+//     return response()->json(['message' => 'Permission assigned successfully.']);
+// }
+
+
+// public function assignPermission(Request $request)
+// {
+//     // Validate the request data
+//     $validated = $request->validate([
+//         'user_id' => 'required|exists:users,id',
+//         'permission_id' => 'required|exists:permissions,id',
+//     ]);
+
+//     // Find the user and permission
+//     $user = User::findOrFail($validated['user_id']);
+//     $permission = Permission::findOrFail($validated['permission_id']);
+
+//     // Check if the user has a role
+//     if ($user->roles->isEmpty()) {
+//         return response()->json(['message' => 'Permission cannot be assigned. User does not have any role.'], 403);
+//     }
+
+//     // Check if the user already has the permission directly assigned or inherited
+//     if ($user->hasPermissionTo($permission->name)) {
+//         return response()->json(['message' => 'User already has this permission.'], 200);
+//     }
+
+//     // Assign the permission to the user
+//     $user->givePermissionTo($permission);
+
+//     return response()->json(['message' => 'Permission assigned successfully.'], 200);
+// }
+
+// public function assignPermission(Request $request)
+// {
+//     // Validate the request data
+//     $validated = $request->validate([
+//         'user_id' => 'required|exists:users,id',
+//         'permission_id' => 'required|exists:permissions,id',
+//     ]);
+
+//     // Find the user and permission
+//     $user = User::findOrFail($validated['user_id']);
+//     $permission = Permission::findOrFail($validated['permission_id']);
+
+//     // Check if the user has any role
+//     if ($user->roles->isEmpty()) {
+//         return response()->json(['message' => 'Permission cannot be assigned. User does not have any role.'], 403);
+//     }
+
+//     // Check if the user already has the permission directly or indirectly (through roles)
+//     if ($user->hasPermissionTo($permission)) {
+//         return response()->json(['message' => 'User already has this permission.'], 200);
+//     }
+
+//     // Assign the permission to the user
+//     $user->givePermissionTo($permission);
+
+//     return response()->json(['message' => 'Permission assigned successfully.'], 200);
+// }
+
+
+// public function assignPermission(Request $request)
+// {
+//     // Validate the request data
+//     $validated = $request->validate([
+//         'user_id' => 'required|exists:users,id',
+//         'permission_id' => 'required|exists:permissions,id',
+//     ]);
+
+//     // Find the user and permission
+//     $user = User::findOrFail($validated['user_id']);
+//     $permission = Permission::findOrFail($validated['permission_id']);
+
+//     // Check if the user has any role
+//     if ($user->roles->isEmpty()) {
+//         return response()->json(['message' => 'Permission cannot be assigned. User does not have any role.'], 403);
+//     }
+
+//     // Check if the permission is already directly assigned to the user
+//     $directPermissions = $user->getDirectPermissions();
+//     if ($directPermissions->contains('id', $permission->id)) {
+//         return response()->json(['message' => 'User already has this permission directly assigned.'], 200);
+//     }
+
+//     // Check if the user has the permission via roles (inherited permission)
+//     if ($user->hasPermissionTo($permission)) {
+//         return response()->json(['message' => 'User already has this permission through their roles.'], 200);
+//     }
+
+//     // If permission is not found, assign it to the user
+//     $user->givePermissionTo($permission);
+
+//     return response()->json(['message' => 'Permission assigned successfully.'], 200);
+// }
+
+public function assignPermission(Request $request)
+{
+    // Validate the request data
+    $validated = $request->validate([
+        'user_id' => 'required|exists:users,id',
+        'permission_id' => 'required|exists:permissions,id',
+    ]);
+
+    // Find the user and permission by their IDs
+    $user = User::findOrFail($validated['user_id']);
+    $permission = Permission::findOrFail($validated['permission_id']);
+
+    // Check if the user has any role
+    if ($user->roles->isEmpty()) {
+        return response()->json(['message' => 'Permission cannot be assigned. User does not have any role.'], 403);
     }
+
+    if ($user->permissions()->where('id', $validated['permission_id'])->exists())
+    {
+        return response()->json(['message' => 'The user.'], 409);
+    }
+
+    // Check if the user already has this permission
+    // if ($user->hasPermissionTo($permission->name)) {
+    //     return response()->json(['message' => 'The user already has this permission.'], 409);
+    // }
+
+    // Assign the permission to the user
+    $user->givePermissionTo($permission);
+
+    return response()->json(['message' => 'Permission assigned successfully.'], 200);
+}
+
+
+
 
     // Revoke Role and Associated Permissions from a User
     public function revokeRole(Request $request)
@@ -71,7 +292,7 @@ class RolesPermissionController extends Controller
         // Find the user and role
         $userToRevokeRole = User::findOrFail($validated['user_id']);
         $role = Role::findOrFail($validated['role_id']);
-
+        
         // Check if the user has the role and revoke the permissions associated with the role
         if ($userToRevokeRole->hasRole($role->name)) {
             $permissions = $role->permissions;
