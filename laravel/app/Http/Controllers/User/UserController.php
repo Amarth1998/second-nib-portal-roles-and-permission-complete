@@ -81,11 +81,12 @@ class UserController extends Controller
 
             // Return success response with token, user data, roles, and permissions
             return response()->json([
+                'token' => $token, 
                 'message' => 'Login successful.',
                 // 'user' => $user,
                 'roles' => $roles,  // Include roles in the response
                 'permissions' => $permissions->pluck('name'),  // Include permissions in the response
-                'token' => $token,
+                
             ]);
         } else {
             // Return error if authentication fails

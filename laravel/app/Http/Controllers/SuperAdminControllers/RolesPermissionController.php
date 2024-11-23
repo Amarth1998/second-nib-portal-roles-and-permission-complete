@@ -264,7 +264,7 @@ public function assignPermission(Request $request)
 
     if ($user->permissions()->where('id', $validated['permission_id'])->exists())
     {
-        return response()->json(['message' => 'The user.'], 409);
+        return response()->json(['message' => 'The user already have permission.'], 409);
     }
 
     // Check if the user already has this permission
