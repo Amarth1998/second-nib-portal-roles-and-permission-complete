@@ -27,9 +27,10 @@ require __DIR__ . '/user/user.php';
 
 
 
+require __DIR__ . '/super_admin_route.php';
+
 // Head branch route 
-require __DIR__ . '/Head_Branch/super_admin_route.php';
-require __DIR__ . '/head_admin_route.php';
+require __DIR__ . '/Head_Branch/head_admin_route.php';
 require __DIR__ . '/Head_Branch/hr_head_route.php';
 
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\SuperAdminControllers\Roles_Permission_Controllers;
+namespace App\Http\Controllers\Roles_Permission_Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -31,7 +31,7 @@ public function assignPermission(Request $request)
 
     if ($user->permissions()->where('id', $validated['permission_id'])->exists())
     {
-        return response()->json(['message' => 'The user already have.'], 409);
+        return response()->json(['message' => 'The user already have this permission.'], 409);
     }
 
     // Assign the permission to the user

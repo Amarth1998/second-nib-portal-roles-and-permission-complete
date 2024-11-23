@@ -6,6 +6,8 @@ use App\Http\Controllers\SuperAdminControllers\RolesPermissionController;
 // use App\Http\Controllers\SuperAdminControllers\Roles_And_Permission_Controllers\AssignPermissionController;
 
 use App\Http\Controllers\SuperAdminControllers\Roles_Permission_Controllers\AssignPermissionController;
+use App\Http\Controllers\SuperAdminControllers\Roles_Permission_Controllers\AssignRoleController;
+
 use App\Http\Middleware\Head_Branch\HeadAdminMiddleware\HeadAdminAssignRoleMiddleware;
 use App\Http\Middleware\Head_Branch\HeadAdminMiddleware\HeadAdminRevokeRoleMiddleware;
 
@@ -17,7 +19,7 @@ Route::prefix('headadmin') // Grouping routes under 'superadmin' prefix
     ->middleware('auth:sanctum') // Ensuring the user is authenticated
     ->group(function () {
        
-                Route::post('roles/assign', [RolesPermissionController::class, 'assignRole'])->middleware(HeadAdminAssignRoleMiddleware::class);
+                Route::post('roles/assign', [AssignRoleController::class, 'assignRole'])->middleware(HeadAdminAssignRoleMiddleware::class);
 
                 Route::post('roles/revoke', [RolesPermissionController::class, 'revokeRole'])->middleware(HeadAdminRevokeRoleMiddleware::class);
 
