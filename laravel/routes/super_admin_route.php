@@ -22,20 +22,33 @@ use App\Http\Middleware\SuperAdminMiddleware\SuperAdminAssignPermissionMiddlewar
 use App\Http\Middleware\SuperAdminMiddleware\SuperAdminRevokePermissionMiddleware;
 
 
+// Route::prefix('superadmin') // Grouping routes under 'superadmin' prefix
+//     ->middleware('auth:sanctum') // Ensuring the user is authenticated
+//     ->group(function () {
+       
+//                 Route::post('roles/assign', [AssignRoleController::class, 'assignRole'])->middleware(SuperAdminAssignRoleMiddleware::class);
+
+//                 Route::post('roles/revoke', [RevokeRoleController::class, 'revokeRole'])->middleware(SuperAdminRevokeRoleMiddleware::class);
+
+//                 Route::post('permissions/assign', [AssignPermissionController::class, 'assignPermission'])->middleware(SuperAdminAssignPermissionMiddleware::class);
+
+//                 Route::post('permissions/revoke', [RevokePermissionController::class, 'revokePermission'])->middleware(SuperAdminRevokePermissionMiddleware::class);
+//             });
+
+
+
 Route::prefix('superadmin') // Grouping routes under 'superadmin' prefix
-    ->middleware('auth:sanctum') // Ensuring the user is authenticated
+    
     ->group(function () {
        
-                Route::post('roles/assign', [AssignRoleController::class, 'assignRole'])->middleware(SuperAdminAssignRoleMiddleware::class);
+                Route::post('roles/assign', [AssignRoleController::class, 'assignRole']);
 
-                Route::post('roles/revoke', [RevokeRoleController::class, 'revokeRole'])->middleware(SuperAdminRevokeRoleMiddleware::class);
+                Route::post('roles/revoke', [RevokeRoleController::class, 'revokeRole']);
 
-                Route::post('permissions/assign', [AssignPermissionController::class, 'assignPermission'])->middleware(SuperAdminAssignPermissionMiddleware::class);
+                Route::post('permissions/assign', [AssignPermissionController::class, 'assignPermission']);
 
-                Route::post('permissions/revoke', [RevokePermissionController::class, 'revokePermission'])->middleware(SuperAdminRevokePermissionMiddleware::class);
+                Route::post('permissions/revoke', [RevokePermissionController::class, 'revokePermission']);
             });
-
-
 
 
 

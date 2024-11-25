@@ -14,7 +14,7 @@ const Permission = () => {
   const fetchUsersAndPermissions = async () => {
     try {
       const response = await axios.get(
-        "http://127.0.0.1:8000/api/get-user-roles-permission"
+        "http://127.0.0.1:8000/api/get-all-roles-permission"
       );
 
       const fetchedUsers = response.data;
