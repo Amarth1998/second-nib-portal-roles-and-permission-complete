@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Http\Middleware\HrMiddleware;
+namespace App\Http\Middleware\HrHeadMiddleware;
 
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
-use App\Models\User;
-
-class HrAssignRoleMiddleware
+// use Spatie\Permission\Models\Permission;
+use APP\Models\User;
+class HrHeadAssignRoleMiddleware
 {
     /**
      * Handle an incoming request.
@@ -24,7 +24,7 @@ class HrAssignRoleMiddleware
         $authUser = Auth::user();
 
         // Check if the authenticated user has the HeadAdmin role
-        if ($authUser->hasRole('Hr')) {
+        if ($authUser->hasRole('HrHead')) {
             // Retrieve the target user_id from the request
             $targetUserId = $request->input('user_id');
 
@@ -37,9 +37,9 @@ class HrAssignRoleMiddleware
             }
 
             // Check if the target user already has a restricted role
-            if ($targetUser->hasRole(['SuperAdmin', 'HeadAdmin', 'HrHead', 'SubHeadAdmin', 'SubHrHeadAdmin', 'Hr'])) {
+            if ($targetUser->hasRole(['SuperAdmin', 'HeadAdmin','HrHead'])) {
                 return response()->json([
-                    'message' => 'You are not authorized to assign a role to a user'
+                    'message' => 'You are not authorized to assign a role to a user with the SuperAdmin or HeadAdmin role.'
                 ], 403);
             }
 
@@ -53,18 +53,16 @@ class HrAssignRoleMiddleware
             }
 
             // Prevent assigning "SuperAdmin" or "HeadAdmin" roles
-            if (in_array($role->name, ['SuperAdmin', 'HeadAdmin', 'HrHead', 'SubHeadAdmin', 'SubHrHeadAdmin', 'Hr'])) {
+            if (in_array($role->name, ['SuperAdmin', 'HeadAdmin','HrHead'])) {
                 return response()->json([
                     'message' => 'You are not authorized to assign the SuperAdmin or HeadAdmin role.'
                 ], 403);
             }
         }
-        //     // Ensure the target user is in the same branch as the current user
-        if ($authUser->branch_id !== $targetUser->branch_id) {
-            return response()->json(['message' => 'You are not authorized to assign roles to users outside your branch.'], 403);
-        }
 
         // Proceed to the next middleware or the controller
         return $next($request);
     }
+
+
 }

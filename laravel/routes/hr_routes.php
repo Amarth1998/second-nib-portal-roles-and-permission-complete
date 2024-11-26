@@ -10,7 +10,7 @@ use App\Http\Middleware\HrMiddleware\HrRevokeRoleMiddleware;
 
 
 
-Route::prefix('hr') // Grouping routes under 'superadmin' prefix
+Route::prefix('hr') 
     ->middleware('auth:sanctum') // Ensuring the user is authenticated
     ->group(function () {
        

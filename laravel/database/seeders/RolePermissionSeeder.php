@@ -123,6 +123,7 @@
 //             'POSP_Certificate',
 //             'POSP_Relieving_Letter',
 
+
 //             // 'HR Reports',
 //             "Employee_Application_Report",
 //             "Employee_Report",
@@ -412,8 +413,6 @@
 
 
 
-
-
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
@@ -430,11 +429,18 @@ class RolePermissionSeeder extends Seeder
         // Create roles
         $roles = [
             'SuperAdmin',
+
             'HeadAdmin',
             'HrHead',
             'OperationHead',
-            'Hr',
+
+
+            'SubHeadAdmin',
             'SubHrHead',
+            
+
+            'Operation',
+            'Hr',
         ];
 
         foreach ($roles as $role) {
@@ -540,6 +546,8 @@ class RolePermissionSeeder extends Seeder
                 'Target_Update',
                 'Target_Delete',
                 'Target_Read',
+
+                // 'HR-Generate details',
                 'Employee_Relieving_Letter',
                 'Employee_Experience_Letter',
                 'Employee_Appointment_Letter',
@@ -548,6 +556,7 @@ class RolePermissionSeeder extends Seeder
                 'Employee_Full_and_Final_Settlement',
                 'POSP_Certificate',
                 'POSP_Relieving_Letter',
+
                 // HR Reports
                 "Employee_Application_Report",
                 "Employee_Report",
@@ -572,23 +581,30 @@ class RolePermissionSeeder extends Seeder
 
         // Assign permissions to roles
         foreach ($permissions['policies'] as $permissionName) {
+
             $permission = Permission::firstOrCreate(['name' => $permissionName, 'guard_name' => $guardName]);
-            Role::findByName('OperationHead', $guardName)->givePermissionTo($permission);
+
+            $rolesToAssign = ['OperationHead', 'Operation'];
+            foreach ($rolesToAssign as $role) {
+                Role::findByName($role, $guardName)->givePermissionTo($permission);
+            }
+            // Role::findByName('OperationHead', $guardName)->givePermissionTo($permission);
         }
 
         foreach ($permissions['requisition'] as $permissionName) {
             $permission = Permission::firstOrCreate(['name' => $permissionName, 'guard_name' => $guardName]);
 
-            $rolesToAssign = ['HrHead', 'Hr', 'SubHrHead'];
+            $rolesToAssign = ['HrHead','OperationHead','SubHeadAdmin','SubHrHead','Operation','Hr'];
             foreach ($rolesToAssign as $role) {
                 Role::findByName($role, $guardName)->givePermissionTo($permission);
             }
         }
 
+
         foreach ($permissions['hr_department'] as $permissionName) {
             $permission = Permission::firstOrCreate(['name' => $permissionName, 'guard_name' => $guardName]);
 
-            $rolesToAssign = ['HrHead', 'Hr', 'SubHrHead'];
+            $rolesToAssign = ['HrHead', 'Hr', 'SubHrHead',];
             foreach ($rolesToAssign as $role) {
                 Role::findByName($role, $guardName)->givePermissionTo($permission);
             }
@@ -598,131 +614,7 @@ class RolePermissionSeeder extends Seeder
         $allPermissions = Permission::where('guard_name', $guardName)->get();
         Role::findByName('SuperAdmin', $guardName)->syncPermissions($allPermissions);
         Role::findByName('HeadAdmin', $guardName)->syncPermissions($allPermissions);
+        Role::findByName('SubHeadAdmin', $guardName)->syncPermissions($allPermissions);
+
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// namespace Database\Seeders;
-
-// use Illuminate\Database\Seeder;
-// use Spatie\Permission\Models\Role;
-// use Spatie\Permission\Models\Permission;
-
-// class RolePermissionSeeder extends Seeder
-// {
-//     public function run()
-//     {
-//         // Clear cache to avoid conflicts
-//         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
-
-//         // Define permissions
-//         $permissions = [
-//             'Employee_Create',
-//             'Employee_Update',
-//             'Employee_Delete',
-//             'Employee_View',
-//             'POSP_Create',
-//             'POSP_Update',
-//             'POSP_Delete',
-//             'POSP_View',
-//             'MISP_Create',
-//             'MISP_Update',
-//             'MISP_Delete',
-//             'MISP_View',
-//             'Broker_Branch_Create',
-//             'Broker_Branch_Update',
-//             'Broker_Branch_Delete',
-//             'Broker_Branch_View',
-//             'Employee_Reports',
-//             'POSP_Reports',
-//             'Branch_Reports',
-//             'Sales_Reports',
-//         ];
-
-//         // Define roles
-//         $roles = [
-//             'SuperAdmin',
-//             'HeadAdmin',
-//             'SubHeadAdmin',
-//             'HrHead',
-//             'SubHrHead',
-//             'Hr',
-//         ];
-
-//         // Step 1: Create permissions with guard_name "sanctum"
-//         foreach ($permissions as $permissionName) {
-//             Permission::firstOrCreate(
-//                 ['name' => $permissionName, 'guard_name' => 'sanctum']
-//             );
-//         }
-
-//         // Step 2: Create roles with guard_name "sanctum"
-//         foreach ($roles as $roleName) {
-//             Role::firstOrCreate(
-//                 ['name' => $roleName, 'guard_name' => 'sanctum']
-//             );
-//         }
-
-//         // Step 3: Assign permissions to roles
-//         // Assign all permissions to SuperAdmin
-//         $superAdmin = Role::where('name', 'SuperAdmin')->where('guard_name', 'sanctum')->first();
-//         $superAdmin->syncPermissions(Permission::where('guard_name', 'sanctum')->get());
-
-//         // Assign all permissions to HeadAdmin
-//         $headAdmin = Role::where('name', 'HeadAdmin')->where('guard_name', 'sanctum')->first();
-//         $headAdmin->syncPermissions(Permission::where('guard_name', 'sanctum')->get());
-
-//         // Assign specific permissions to HrHead
-//         $hrHead = Role::where('name', 'HrHead')->where('guard_name', 'sanctum')->first();
-//         $hrHead->givePermissionTo([
-//             'Employee_Create',
-//             'Employee_Update',
-//             'Employee_Delete',
-//             'Employee_View',
-//             'POSP_Create',
-//             'POSP_Update',
-//             'POSP_Delete',
-//             'POSP_View',
-//             'Employee_Reports',
-//         ]);
-
-//         // Assign permissions to SubHrHead
-//         $subHrHead = Role::where('name', 'SubHrHead')->where('guard_name', 'sanctum')->first();
-//         $subHrHead->givePermissionTo([
-//             'Employee_Create',
-//             'Employee_Update',
-//             'Employee_View',
-//             'POSP_View',
-//         ]);
-
-//         // Assign limited permissions to Hr
-//         $hr = Role::where('name', 'Hr')->where('guard_name', 'sanctum')->first();
-//         $hr->givePermissionTo([
-//             'Employee_View',
-//         ]);
-
-//         // Assign permissions to SubHeadAdmin
-//         $subHeadAdmin = Role::where('name', 'SubHeadAdmin')->where('guard_name', 'sanctum')->first();
-//         $subHeadAdmin->givePermissionTo([
-//             'Broker_Branch_View',
-//             'Sales_Reports',
-//         ]);
-
-//         // Log seeded data
-//         $this->command->info('Roles and permissions with guard_name "sanctum" have been successfully seeded.');
-//     }
-// }
