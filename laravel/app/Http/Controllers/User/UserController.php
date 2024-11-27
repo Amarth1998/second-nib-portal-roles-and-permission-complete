@@ -24,6 +24,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:2',
            'branch_id' => 'required|exists:branches,id',
+           
         ]);
 
         // Return validation error if validation fails

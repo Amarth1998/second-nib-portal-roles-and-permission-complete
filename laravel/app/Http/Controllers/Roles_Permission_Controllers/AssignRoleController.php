@@ -48,34 +48,4 @@ class AssignRoleController extends Controller
     ], 200);
 }
 
-
-    // public function assignRole(Request $request)
-    // {
-    //     $validated = $request->validate([
-    //         'user_id' => 'required|exists:users,id',
-    //         'role_id' => 'required|exists:roles,id',
-    //     ]);
-
-        
-    //     // Find the user and role
-    //     $userToAssignRole = User::findOrFail($validated['user_id']);
-    //     $role = Role::findOrFail($validated['role_id']);
-
-    //     // Remove all existing roles from the user
-    //     $userToAssignRole->syncRoles([]);
-
-    //     // Assign the new role to the user
-    //     $userToAssignRole->assignRole($role);
-
-    //     // Assign the corresponding permissions to the user based on the role
-    //     $permissions = $role->permissions;
-    //     foreach ($permissions as $permission) {
-    //         $userToAssignRole->givePermissionTo($permission);
-    //     }
-
-        
-    //     return response()->json(['message' => 'Role and permissions assigned successfully.']);
-    // }
-
-
 }

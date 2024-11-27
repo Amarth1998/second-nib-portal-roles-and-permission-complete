@@ -56,13 +56,13 @@ const Permission = () => {
         user_id: userId,
         permission_id: permissionId,
       });
-      alert(response.data.message); // Show success message
-      await fetchUsersAndPermissions(); // Refresh data after toggling
+
+      alert(response.data.message || "Permission updated successfully.");
+
+      // Fetch updated user-permissions list
+      await fetchUsersAndPermissions();
     } catch (error) {
-      console.error(
-        "Error updating permission:",
-        error.response?.data || error
-      );
+      console.error("Error updating permission:", error.response?.data || error);
       alert("Failed to update permission. Check console for details.");
     }
   };

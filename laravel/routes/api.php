@@ -13,7 +13,12 @@ Route::get('/get-all-roles-permission', [GetUsersRolesPermissions::class, 'getAl
 
 Route::post('/getUserPermissions', [GetUsersRolesPermissions::class, 'getUserPermissions']);
 
-Route::middleware('auth:sanctum')->get('/getdata', [GetDataController::class, 'getAllUsersWithRolesAndPermissions']);
+//Route::middleware('auth:sanctum')->get('/getdata', [GetDataController::class, 'getAllUsersWithRolesAndPermissions']);
+
+//Route::get('/getdata', [GetDataController::class, 'getAllUsersWithRolesAndPermissions']);
+
+
+
 
 // Include the user routes
 require __DIR__ . '/user/user.php';
@@ -35,6 +40,9 @@ require __DIR__ . '/sub_hr_head_route.php';
 require __DIR__ . '/hr_routes.php';
 require __DIR__ . '/operation_head_route.php';
 
+
+
+require __DIR__ . '/employee_route.php';
 
 
 

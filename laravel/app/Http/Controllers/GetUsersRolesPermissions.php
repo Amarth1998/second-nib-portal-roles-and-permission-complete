@@ -16,34 +16,35 @@ class GetUsersRolesPermissions extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
+    
+
     public function getAllUsersWithRolesAndPermissions()
-    {
-        // Get all users with their roles and permissions
-        $users = User::all();
+{
+    // Eager load roles and permissions for all users
+    $users = User::with(['roles', 'permissions'])->get();
 
-        // Map through each user to fetch roles and permissions
-        $response = $users->map(function ($user) {
-            return [
-                'user_id' => $user->id,
-                'name' => $user->name,
-                'roles' => $user->roles->map(function ($role) {
-                    return [
-                        'id' => $role->id,
-                        'name' => $role->name,
-                    ];
-                }), // Get role IDs and names
-                'permissions' => $user->getAllPermissions()->map(function ($permission) {
-                    return [
-                        'id' => $permission->id,
-                        'name' => $permission->name,
-                    ];
-                }), // Get permission IDs and names
-            ];
-        });
+    // Map users to include roles and permissions in a structured format
+    $response = $users->map(function ($user) {
+        return [
+            'user_id' => $user->id,
+            'name' => $user->name,
+            'roles' => $user->roles->map(function ($role) {
+                return [
+                    'id' => $role->id,
+                    'name' => $role->name,
+                ];
+            }),
+            'permissions' => $user->permissions->map(function ($permission) {
+                return [
+                    'id' => $permission->id,
+                    'name' => $permission->name,
+                ];
+            }),
+        ];
+    });
 
-        return response()->json($response);
-    }
-
+    return response()->json($response);
+}
 
 
 
@@ -73,76 +74,8 @@ class GetUsersRolesPermissions extends Controller
     }
 
 
-    //     public function getUserRolesAndPermissions($user_id)
-    // {
-    //     try {
-    //         $user = User::findOrFail($user_id);
-
-    //         // Fetch roles and permissions
-    //         $roles = $user->getRoleNames(); // Get all role names
-    //         $permissions = $user->getAllPermissions(); // Get all permissions
-
-    //           // Clear cached permissions
-    //           app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
-
-    //           // Re-fetch the updated permissions for the user
-    //           $permissions->load('permissions'); // Load fresh permissions
-
-    //         return response()->json([
-    //             'user' => $user->name,
-    //             'roles' => $roles,
-    //             'permissions' => $permissions->pluck('name'), // Extract permission names
-    //         ], 200);
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'error' => 'User not found or an error occurred.',
-    //             'message' => $e->getMessage(),
-    //         ], 404);
-    //     }
-    // }
 
 
-
-
-
-    // public function getUserPermissions(Request $request)
-    // {
-    //     $validated = $request->validate([
-    //         'user_id' => 'required|exists:users,id',
-    //     ]);
-
-    //     // Find the user
-    //     $user = User::findOrFail($validated['user_id']);
-
-    //     // Get the user's permissions
-    //     $permissions = $user->permissions()->get(['id', 'name']);
-
-
-    //     // Return the permissions as a JSON response
-    //     return response()->json([
-    //         'user_id' => $user->id,
-    //         'permissions' => $permissions,
-    //     ]);
-    // }
-
-//     public function getUserPermissions(Request $request)
-// {
-//     $validated = $request->validate([
-//         'user_id' => 'required|exists:users,id',
-//     ]);
-
-//     // Find the user
-//     $user = User::findOrFail($validated['user_id']);
-
-//     // Get the user's permissions with only 'id' and 'name'
-//     $permissions = $user->permissions()->get(['id', 'name'])->makeHidden('pivot');
-
-//     // Return the permissions as a JSON response
-//     return response()->json([
-//         'user_id' => $user->id,
-//         'permissions' => $permissions,
-//     ]);
-// }
 
 public function getUserPermissions(Request $request)
 {

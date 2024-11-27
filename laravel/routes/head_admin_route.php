@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\SuperAdminControllers\RolesPermissionController;
 
 
 use App\Http\Middleware\HeadAdminMiddleware\HeadAdminAssignRoleMiddleware;

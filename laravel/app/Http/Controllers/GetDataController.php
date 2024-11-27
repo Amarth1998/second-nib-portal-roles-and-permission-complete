@@ -22,13 +22,17 @@ class GetDataController extends Controller
         $user = Auth::user();
 
         // Check for the role of the user and fetch data accordingly
-        if ($user->hasRole('Super Admin') || $user->hasRole('Head Admin') || $user->hasRole('Head HR')) {
+        if ($user->hasRole('SuperAdmin') || $user->hasRole('HeadAdmin') || $user->hasRole('HeadHR')) {
             // Super Admin, Head Admin, and Head HR can see all users across all branches
             $users = User::with('branch')->get(); // Fetch all users from all branches
-        } elseif ($user->hasRole('Sub Head Admin') || $user->hasRole('Sub Head HR') || $user->hasRole('HR')) {
+        } 
+        
+        elseif ($user->hasRole('Sub Head Admin') || $user->hasRole('Sub Head HR') || $user->hasRole('HR')) {
             // Sub Head Admin, Sub Head HR, and HR can only see users from their own branch
             $users = User::where('branch_id', $user->branch_id)->get(); // Fetch users from the same branch as the logged-in user
-        } else {
+        } 
+        
+        else {
             // For any other role, restrict access (optional)
             return response()->json(['message' => 'Unauthorized'], 403);
         }
