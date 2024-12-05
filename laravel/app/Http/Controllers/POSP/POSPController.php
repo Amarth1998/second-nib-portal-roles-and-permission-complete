@@ -1,181 +1,225 @@
 <?php
 
 namespace App\Http\Controllers\POSP;
-
 use App\Http\Controllers\Controller;
+
+use App\Models\Posp;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use App\Models\Employee;
+use App\Mail\VerifyEmailMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+// use Illuminate\Support\Facades\Validator;
 
-class POSPController extends Controller
-
+class PospController extends Controller
 {
-
-    public function register(Request $request)
+    /**
+     * Stage 1: Basic Registration
+     */
+    public function basicRegistration(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:10',
             'name' => 'required|string|max:255',
-            // 'department' => 'required|string|max:255',
-            // 'designation' => 'required|string|max:255',
-            'mobile_no' => 'required|string|regex:/^\d{10}$/|unique:employees,mobile_no',
-            'email' => 'required|email|unique:employees,email',
-            'branch_id' => 'required|exists:branches,id',
-            'reporting_manager' => 'nullable|exists:employees,id',
-            'relationship_manager' => 'nullable|exists:employees,id',
-            'level' => 'required|string|max:50',
-            'grade' => 'required|string|max:50',
-            'is_bqp' => 'required|boolean',
-            'joining_date' => 'required|date',
-            'active' => 'required|boolean',
-            'role_id' => 'required|exists:roles,id', // Validate role ID
+            'mobile_no' => 'required|string|unique:posps',
+            'email' => 'required|email|unique:posps',
+            'pancard_number' => 'required|string|unique:posps',
+            'login_password' => 'required|string|min:8|confirmed',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-        $branchCode = $request->branch_id == 1 ? "NIBHO" : "NIBSO" . $request->branch_id; // Add branch ID dynamically
 
-$lastEmployee = Employee::where('employee_code', 'like', "{$branchCode}%")
-    ->orderBy('employee_code', 'desc')
-    ->first();
-
-$lastNumber = $lastEmployee
-    ? (int)substr($lastEmployee->employee_code, -3)
-    : 0;
-
-$newEmployeeCode = sprintf("%s%03d", $branchCode, $lastNumber + 1);
-
-
-
-        // Create the employee
-        $employee = Employee::create([
-            'title' => $request->title,
+        $posp = Posp::create([
             'name' => $request->name,
-            'department' => $request->department,
-            'designation' => $request->designation,
-            'employee_code' => $newEmployeeCode,
             'mobile_no' => $request->mobile_no,
             'email' => $request->email,
-            'branch_id' => $request->branch_id,
-            'reporting_manager' => $request->reporting_manager,
-            'relationship_manager' => $request->relationship_manager,
-            'level' => $request->level,
-            'grade' => $request->grade,
-            'is_bqp' => $request->is_bqp,
-            'joining_date' => $request->joining_date,
-            'password' => Hash::make('default_password'),
-            'active' => $request->active,
-            'role_id' => $request->role_id,  // Make sure this is passed in the request
+            'pancard_number' => $request->pancard_number,
+            'login_password' => Hash::make($request->login_password),
+            'email_verified' => false,
+            'active' => true,
         ]);
 
+     // Fire Registered Event to send verification email
+event(new Registered($posp));
 
+// Send the email verification link
+Mail::to($posp->email)->send(new VerifyEmailMail($posp));
 
+return response()->json(['message' => 'Basic registration successful. Please verify your email.'], 201);
 
-
-
-        // Find role by ID and ensure it's using the 'sanctum' guard
-        $role = Role::where('id', $request->role_id)
-            ->where('guard_name', 'sanctum') // Ensure the guard matches
-            ->firstOrFail();
-
-        // Check if employee already has the role
-        if ($employee->hasRole($role->name)) {
-            return response()->json([
-                'message' => 'The employee already has this role and cannot be assigned the same role again.',
-            ], 409); // 409 Conflict
-        }
-
-        // Remove all existing roles from the employee
-        $employee->syncRoles([]);
-
-        // Assign the new role to the employee
-        $employee->assignRole($role);
-
-        // Assign the corresponding permissions based on the role
-        $permissions = $role->permissions;
-        foreach ($permissions as $permission) {
-            $employee->givePermissionTo($permission);
-        }
-
-        return response()->json([
-            'message' => 'Employee registered successfully with role and permissions!',
-            'employee' => $employee,
-            'role' => $role->name,
-            'permissions' => $permissions->pluck('name'),
-        ], 201);
     }
 
+    /**
+     * Email Verification
+     */
+    public function verifyEmail(Request $request)
+    {
+        $posp = Posp::find($request->id);
+    
+        if (!$posp || sha1($posp->email) !== $request->token) {
+            return response()->json(['message' => 'Invalid or expired verification link.'], 400);
+        }
+    
+        $posp->email_verified = true;
+        $posp->save();
+    
+        return response()->json(['message' => 'Email verified successfully.'], 200);
+    }
+    
 
 
+
+
+// public function documentSubmission(Request $request)
+// {
+//     // Validate the incoming request
+//     $validator = Validator::make($request->all(), [
+//         'date_of_birth' => 'required|date',
+//         'gender' => 'required|string',
+//         'street' => 'required|string',
+//         'city' => 'required|string',
+//         'state' => 'required|string',
+//         'pincode' => 'required|string',
+//         'aadharcard_number' => 'required|string|size:12',  // Aadhar card number
+//         'pancard_number' => 'required|string|size:10',     // Pan card number
+//         'education' => 'required|string',                   // Education level
+
+//         'aadharcard_pdf' => 'required|file|mimes:pdf|max:2048',
+//         'pancard_pdf' => 'required|file|mimes:pdf|max:2048',
+//         'marksheet_pdf' => 'required|file|mimes:pdf|max:2048',
+//     ]);
+
+//     if ($validator->fails()) {
+//         return response()->json(['errors' => $validator->errors()], 422);
+//     }
+
+//     // Check if user is authenticated
+//     $posp = Auth::user();
+
+//     if (!$posp) {
+//         return response()->json(['error' => 'User not authenticated.'], 401);
+//     }
+
+//     // Save uploaded files
+//     $aadharPath = $request->file('aadharcard_pdf')->store("documents/{$posp->id}");
+//     $panPath = $request->file('pancard_pdf')->store("documents/{$posp->id}");
+//     $marksheetPath = $request->file('marksheet_pdf')->store("documents/{$posp->id}");
+
+//     // Update POSP details with the new fields
+//     $posp->update([
+//         'date_of_birth' => $request->date_of_birth,
+//         'gender' => $request->gender,
+//         'street' => $request->street,
+//         'city' => $request->city,
+//         'state' => $request->state,
+//         'pincode' => $request->pincode,
+//         'aadharcard_number' => $request->aadharcard_number,
+//         'pancard_number' => $request->pancard_number,
+//         'education' => $request->education,
+//         'aadharcard_pdf' => $aadharPath,
+//         'pancard_pdf' => $panPath,
+//         'marksheet_pdf' => $marksheetPath,
+//     ]);
+
+//     return response()->json(['message' => 'Documents submitted successfully.'], 200);
+// }
+
+
+public function documentSubmission(Request $request)
+{
+    // Validate the incoming request
+    $validator = Validator::make($request->all(), [
+        'date_of_birth' => 'required|date',
+        'gender' => 'required|string',
+        'street' => 'required|string',
+        'city' => 'required|string',
+        'state' => 'required|string',
+        'pincode' => 'required|string',
+        'aadharcard_number' => 'required|string|size:12',  // Aadhar card number
+        'pancard_number' => 'required|string|size:10',     // Pan card number
+        'education' => 'required|string',                   // Education level
+
+        'aadharcard_pdf' => 'required|file|mimes:pdf|max:2048',
+        'pancard_pdf' => 'required|file|mimes:pdf|max:2048',
+        'marksheet_pdf' => 'required|file|mimes:pdf|max:2048',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
+    }
+
+    // Check if user is authenticated
+    $posp = Auth::user();
+
+    if (!$posp) {
+        return response()->json(['error' => 'User not authenticated.'], 401);
+    }
+
+    // Generate the folder path dynamically
+    $folderPath = "public/documents/{$posp->id}_{$posp->name}";
+
+    // Ensure the folder exists
+    $storagePath = storage_path('app/' . $folderPath);
+    if (!file_exists($storagePath)) {
+        mkdir($storagePath, 0755, true); // Create folder with permissions if it doesn't exist
+    }
+
+    // Save uploaded files to the custom folder
+    $aadharPath = $request->file('aadharcard_pdf')->storeAs($folderPath, 'aadharcard.pdf');
+    $panPath = $request->file('pancard_pdf')->storeAs($folderPath, 'pancard.pdf');
+    $marksheetPath = $request->file('marksheet_pdf')->storeAs($folderPath, 'marksheet.pdf');
+
+    // Update POSP details with the new fields
+    $posp->update([
+        'date_of_birth' => $request->date_of_birth,
+        'gender' => $request->gender,
+        'street' => $request->street,
+        'city' => $request->city,
+        'state' => $request->state,
+        'pincode' => $request->pincode,
+        'aadharcard_number' => $request->aadharcard_number,
+        'pancard_number' => $request->pancard_number,
+        'education' => $request->education,
+        'aadharcard_pdf' => $aadharPath,
+        'pancard_pdf' => $panPath,
+        'marksheet_pdf' => $marksheetPath,
+    ]);
+
+    return response()->json(['message' => 'Documents submitted successfully.'], 200);
+}
+
+
+
+    /**
+     * Login
+     */
     public function login(Request $request)
     {
-        // Validate the incoming request
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
-            'password' => 'required|string|min:6',  // Ensure password is at least 6 characters
+            'login_password' => 'required|string',
         ]);
 
-        // Return validation error if validation fails
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 422);
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        // Check if the user exists and the password is correct
-        $user = Employee::where('email', $request->email)->first();
+        $posp = Posp::where('email', $request->email)->first();
 
-        if ($user && Hash::check($request->password, $user->password)) {
-            // Generate a new API token for the user
-            $token = $user->createToken('API Token')->plainTextToken;
-
-            // Return success response with token, user data, roles, and permissions
-            return response()->json([
-                'token' => $token,
-                'message' => 'Login successful.',
-                'roles' => $user->getRoleNames(),
-                'permissions' => $user->getAllPermissions()->pluck('name'),
-            ]);
-        } else {
-            // Return error if authentication fails
-            return response()->json(['error' => 'Unauthorized, incorrect credentials'], 401);
+        if (!$posp || !Hash::check($request->login_password, $posp->login_password)) {
+            return response()->json(['message' => 'Invalid credentials.'], 401);
         }
+
+        if (!$posp->email_verified) {
+            return response()->json(['message' => 'Email not verified.'], 403);
+        }
+
+        // Generate token (assuming you're using Laravel Sanctum or Passport for API authentication)
+        $token = $posp->createToken('POSPToken')->plainTextToken;
+
+        return response()->json(['message' => 'Login successful.', 'token' => $token], 200);
     }
-
-
-
-    //     public function login(Request $request)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'email' => 'required|email',
-    //         'password' => 'required|string|min:2',
-    //     ]);
-
-    //     if ($validator->fails()) {
-    //         return response()->json(['error' => $validator->errors()], 422);
-    //     }
-
-    //     if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-    //         $employee = Auth::user();
-
-    //         $roles = $employee->roles->pluck('id'); // Get roles by ID
-    //         $permissions = $employee->getAllPermissions()->pluck('name'); // Get all permissions
-
-    //         $token = $employee->createToken('API Token')->plainTextToken;
-
-    //         return response()->json([
-    //             'token' => $token,
-    //             'message' => 'Login successful.',
-    //             'employee' => $employee,
-    //             'roles' => $roles, // Role IDs
-    //             'permissions' => $permissions,
-    //         ]);
-    //     }
-
-    //     return response()->json(['error' => 'Unauthorized'], 401);
-    // }
-
 }

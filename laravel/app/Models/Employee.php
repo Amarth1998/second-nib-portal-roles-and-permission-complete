@@ -43,6 +43,23 @@ class Employee extends Model
         return $this->belongsTo(User::class, 'relationship_manager');
     }
 
+
+
+    public function reportingPosps()
+    {
+        return $this->hasMany(Posp::class, 'reporting_manager_id');
+    }
+
+    public function relationshipPosps()
+    {
+        return $this->hasMany(Posp::class, 'relationship_manager_id');
+    }
+
+    public function bqpPosps()
+    {
+        return $this->hasMany(Posp::class, 'bqp');
+    }
+
         // Set the guard name for token authentication
         protected $guard_name = 'sanctum'; // Ensure this is set for API-based token authentication
 

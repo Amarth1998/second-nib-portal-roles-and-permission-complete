@@ -16,4 +16,9 @@ class Branch extends Model
     {
         return $this->hasMany(User::class);  // A branch has many users
     }
+
+    public function posps()
+    {
+        return $this->hasMany(Posp::class, 'branch_id');
+    }
 }

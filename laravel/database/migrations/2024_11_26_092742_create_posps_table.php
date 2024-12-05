@@ -1,33 +1,50 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreatePospsTable extends Migration
 {
     public function up()
     {
         Schema::create('posps', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
+            $table->string('title')->nullable();
             $table->string('name');
-            $table->string('department');
-            $table->string('designation');
-            $table->string('employee_code')->unique();
-            $table->string('mobile_no')->unique();
+            $table->string('mobile_no');
             $table->string('email')->unique();
-            $table->foreignId('branch_id')->constrained(); // Assumes a 'branches' table exists
-            $table->foreignId('reporting_manager')->nullable()->constrained('employees'); // Reference the 'employees' table
-            $table->foreignId('relationship_manager')->nullable()->constrained('employees'); // Reference the 'employees' table
-            $table->foreignId('role_id')->constrained('roles')->onDelete('cascade'); // Add role_id referencing the 'roles' table
-            $table->string('level');
-            $table->string('grade');
-            $table->boolean('is_bqp');
-            $table->timestamp('joining_date');
-            $table->boolean('active')->default(true);
-            $table->string('password');
-            $table->timestamps();
+            $table->string('login_password')->nullable();
+            $table->boolean('email_verified')->nullable()->default(false);
+            $table->foreignId('role_id')->nullable()->constrained()->onDelete('cascade');
+
+            $table->foreignId('relationship_manager_id')->nullable()->constrained('employees')->onDelete('set null');
+            $table->foreignId('reporting_manager_id')->nullable()->constrained('employees')->onDelete('set null');
+            $table->foreignId('branch_id')->nullable()->constrained()->onDelete('cascade');
+            $table->string('level_and_grade')->nullable();
+
+
+            $table->foreignId('bqp_id')->nullable()->constrained('employees')->onDelete('set null');
+            $table->integer('exam_duration')->nullable()->default(86400); // in seconds
+            $table->string('street')->nullable();
+            $table->string('city')->nullable();
+            $table->string('state')->nullable();
+            $table->string('pincode')->nullable();
+            $table->date('date_of_birth')->nullable();
+            $table->string('education')->nullable();
+            $table->string('posp_code')->nullable()->unique();
+            $table->boolean('active')->nullable()->default(true);
+            $table->string('aadharcard_number')->nullable();
+            $table->string('pancard_number')->nullable();
+            $table->string('marksheet_pdf')->nullable();
+            $table->string('aadharcard_pdf')->nullable();
+            $table->string('pancard_pdf')->nullable();
+         
+            $table->date('documentation_verification_date')->nullable();
+            $table->timestamps();  // Uncomment this line to enable timestamps
+            // $table->timestamp('joining_date'); // No default value here
+            $table->timestamp('joining_date')->useCurrent(); // Set default to current timestamp
+
+          
         });
     }
 
@@ -35,4 +52,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('posps');
     }
-};
+}
